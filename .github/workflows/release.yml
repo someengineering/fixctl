@@ -28,10 +28,10 @@ jobs:
       - name: Build binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          mkdir -p ${{ github.workspace }}/tmp/
-          GOARCH=amd64 go build -o ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}
-          GOARCH=arm64 go build -o ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
-          lipo -create -output ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-universal-${{ github.ref_name }} ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }} ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
+          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}"
+          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
+          lipo -create -output "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-universal-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
+          rm -f "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
         shell: bash
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
