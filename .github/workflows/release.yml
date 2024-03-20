@@ -21,6 +21,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
       - name: Set up environment
+        shell: bash
         run: |
           OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
           SUFFIX=""
