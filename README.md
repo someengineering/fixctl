@@ -4,7 +4,7 @@ Fix CLI tool
 ## Usage
 ```
 Usage of fixctl:
-  --api-endpoint: API endpoint URL (default "")
+  --endpoint: API endpoint URL (default "https://app.fix.security")
   --format: Output format: json or yaml (default "json")
   --help: Display help information (default "false")
   --password: Password (default "")

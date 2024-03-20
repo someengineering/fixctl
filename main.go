@@ -21,7 +21,7 @@ func customUsage() {
 func main() {
 	flag.CommandLine.Init(os.Args[0], flag.ExitOnError)
 	flag.Usage = customUsage
-	apiEndpointPtr := flag.String("api-endpoint", "", "API endpoint URL")
+	apiEndpointPtr := flag.String("endpoint", "https://app.fix.security", "API endpoint URL")
 	fixTokenPtr := flag.String("token", "", "Auth token")
 	workspacePtr := flag.String("workspace", "", "Workspace ID")
 	searchStrPtr := flag.String("search", "", "Search string")
@@ -36,7 +36,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	apiEndpoint := utils.GetEnvOrDefault("FIX_API_ENDPOINT", *apiEndpointPtr)
+	apiEndpoint := utils.GetEnvOrDefault("FIX_ENDPOINT", *apiEndpointPtr)
 	username := utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr)
 	password := utils.GetEnvOrDefault("FIX_PASSWORD", *passwordPtr)
 	fixToken := utils.GetEnvOrDefault("FIX_TOKEN", *fixTokenPtr)
@@ -45,15 +45,16 @@ func main() {
 	withEdges := *withEdgesPtr
 	outputFormat := *formatPtr
 
-	if apiEndpoint == "" {
-		apiEndpoint = "https://app.fix.security"
-	}
 	if workspaceID == "" {
 		fmt.Println("Workspace ID is required")
 		os.Exit(1)
 	}
 	if outputFormat != "json" && outputFormat != "yaml" {
 		fmt.Println("Invalid output format")
+		os.Exit(1)
+	}
+	if searchStr == "" {
+		fmt.Println("Search string is required")
 		os.Exit(1)
 	}
 
