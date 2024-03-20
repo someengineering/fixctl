@@ -1,35 +1,28 @@
 name: Run Go Tests
-
 on:
   push:
     tags:
-        - "*.*.*"
+      - "*.*.*"
     branches:
-        - main
+      - main
   pull_request:
     branches:
-        - main
-
+      - main
 jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '^1.22'
-      id: go
-
-    - name: Get dependencies
-      run: go mod tidy
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '^1.22'
+        id: go
+      - name: Get dependencies
+        run: go mod tidy
+      - name: Build
+        run: go build -v ./...
+      - name: Test
+        run: go test -v ./...
