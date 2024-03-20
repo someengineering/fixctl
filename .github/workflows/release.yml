@@ -20,18 +20,28 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Build binaries
+      - name: Set up environment
         run: |
           OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
-          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}"
-          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
+          SUFFIX=""
+          if [ $OS_NAME = "windows" ]; then
+            SUFFIX=".exe"
+          fi
+          echo "SUFFIX=$SUFFIX" >> $GITHUB_ENV
+          echo "OS_NAME=$OS_NAME" >> $GITHUB_ENV
+      - name: Build Binary (amd64)
+        run: |
+          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX"
+        shell: bash
+      - name: Build Binary (arm64)
+        run: |
+          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Generate Universal Binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
-          lipo -create -output "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
-          rm -f "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
+          lipo -create -output "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
+          rm -f "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -57,6 +67,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ github.workspace }}/release/*
+            ${{ github.workspace }}/release/*/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
