@@ -1,4 +1,4 @@
-name: Run Go Tests
+name: Run fixctl Go Tests
 on:
   push:
     tags:
@@ -10,7 +10,7 @@ on:
       - main
 jobs:
   build:
-    name: Build and Test
+    name: Build and Test fixctl
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the Go module directory

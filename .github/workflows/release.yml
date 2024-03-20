@@ -1,4 +1,4 @@
-name: Build and Release Binaries
+name: Build and Release fixctl
 on:
   push:
     tags:
@@ -7,7 +7,7 @@ on:
       - main
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
+    name: Build fixctl on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -20,18 +20,20 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Build binary (non-macOS)
+      - name: Build binary (Linux/Windows)
         if: matrix.os != 'macos-latest'
         run: |
-          go build -o ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-${{ github.ref_name }} .
+          OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
+          go build -o ${{ github.workspace }}/release/fixctl-$OS_NAME-${{ github.ref_name }} .
         shell: bash
       - name: Build binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}"
-          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
-          lipo -create -output "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-universal-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
-          rm -f "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}"
+          OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
+          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}"
+          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
+          lipo -create -output "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
+          rm -f "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
         shell: bash
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
