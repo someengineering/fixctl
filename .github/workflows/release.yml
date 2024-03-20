@@ -20,18 +20,16 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Build binary (Linux/Windows)
-        if: matrix.os != 'macos-latest'
-        run: |
-          OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
-          go build -o ${{ github.workspace }}/release/fixctl-$OS_NAME-${{ github.ref_name }} .
-        shell: bash
-      - name: Build binary (macOS)
-        if: matrix.os == 'macos-latest'
+      - name: Build binaries
         run: |
           OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
           GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}"
           GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
+        shell: bash
+      - name: Generate Universal Binary (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          OS_NAME=$(echo ${{ matrix.os }} | sed 's/-latest//')
           lipo -create -output "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
           rm -f "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}"
         shell: bash
