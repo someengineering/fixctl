@@ -35,17 +35,18 @@ jobs:
           echo "OS_NAME=$OS_NAME" >> $GITHUB_ENV
       - name: Build Binary (amd64)
         run: |
-          GOARCH=amd64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX"
+          GOARCH=amd64 go build -ldflags "-s -w" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Build Binary (arm64)
         run: |
-          GOARCH=arm64 go build -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
+          GOARCH=arm64 go build -ldflags "-s -w" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Generate Universal Binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           lipo -create -output "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
           rm -f "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX" "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
+          strip "${{ github.workspace }}/release/fixctl-$OS_NAME-universal-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
