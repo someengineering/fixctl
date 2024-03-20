@@ -2,66 +2,73 @@
 package search
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
-// SearchRequest defines the structure of the search request body
 type SearchRequest struct {
-	Query string      `json:"query"`
-	Skip  int         `json:"skip"`
-	Limit int         `json:"limit"`
-	Count bool        `json:"count"`
-	Sort  []SortField `json:"sort"`
+	Query     string `json:"query"`
+	WithEdges bool   `json:"with_edges"`
 }
 
-// SortField defines the structure of the sort field in the search request
-type SortField struct {
-	Path      string `json:"path"`
-	Direction string `json:"direction"`
-}
+func SearchTable(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
+	results := make(chan interface{})
+	errs := make(chan error, 1)
 
-// SearchTable performs the HTTP POST request to search in the inventory
-func SearchTable(apiEndpoint, fixToken, workspaceID, searchStr string) (string, error) {
-	requestBody, err := json.Marshal(SearchRequest{
-		Query: searchStr,
-		Skip:  0,
-		Limit: 50,
-		Count: false,
-		Sort: []SortField{
-			{Path: "string", Direction: "asc"},
-		},
-	})
-	if err != nil {
-		return "", fmt.Errorf("error marshaling JSON: %w", err)
-	}
+	go func() {
+		defer close(results)
+		defer close(errs)
+		requestBody, err := json.Marshal(SearchRequest{
+			Query:     searchStr,
+			WithEdges: withEdges,
+		})
+		if err != nil {
+			errs <- fmt.Errorf("error marshaling JSON: %w", err)
+			return
+		}
 
-	url := fmt.Sprintf("%s/api/workspaces/%s/inventory/search/table", apiEndpoint, workspaceID)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-	if err != nil {
-		return "", fmt.Errorf("error creating request: %w", err)
-	}
+		url := fmt.Sprintf("%s/api/workspaces/%s/inventory/search", apiEndpoint, workspaceID)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+		if err != nil {
+			errs <- fmt.Errorf("error creating request: %w", err)
+			return
+		}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.AddCookie(&http.Cookie{Name: "session_token", Value: fixToken})
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/ndjson")
+		req.AddCookie(&http.Cookie{Name: "session_token", Value: fixToken})
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("error making HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			errs <- fmt.Errorf("error making HTTP request: %w", err)
+			return
+		}
+		defer resp.Body.Close()
 
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("error reading response body: %w", err)
-	}
-	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("search request failed with status code: %d, response: %s", resp.StatusCode, responseBody)
-	}
-	return string(responseBody), nil
+		if resp.StatusCode != 200 {
+			errs <- fmt.Errorf("search request failed with status code: %d", resp.StatusCode)
+			return
+		}
+
+		scanner := bufio.NewScanner(resp.Body)
+		for scanner.Scan() {
+			var result interface{}
+			if err := json.Unmarshal(scanner.Bytes(), &result); err != nil {
+				errs <- fmt.Errorf("error unmarshaling JSON: %w", err)
+				return
+			}
+			results <- result
+		}
+
+		if err := scanner.Err(); err != nil {
+			errs <- fmt.Errorf("error reading response body: %w", err)
+			return
+		}
+	}()
+
+	return results, errs
 }
