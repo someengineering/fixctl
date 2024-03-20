@@ -56,7 +56,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	results, errs := search.SearchTable(apiEndpoint, fixToken, workspaceID, searchStr, withEdges)
+	results, errs := search.SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr, withEdges)
 	firstResult := true
 	for result := range results {
 		var output string

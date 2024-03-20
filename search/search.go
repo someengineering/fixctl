@@ -14,7 +14,7 @@ type SearchRequest struct {
 	WithEdges bool   `json:"with_edges"`
 }
 
-func SearchTable(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
+func SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
 	results := make(chan interface{})
 	errs := make(chan error, 1)
 
