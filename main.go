@@ -11,7 +11,16 @@ import (
 	"github.com/someengineering/fixctl/utils"
 )
 
+func customUsage() {
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n", os.Args[0])
+	flag.VisitAll(func(f *flag.Flag) {
+		fmt.Fprintf(flag.CommandLine.Output(), "  --%s: %s (default %q)\n", f.Name, f.Usage, f.DefValue)
+	})
+}
+
 func main() {
+	flag.CommandLine.Init(os.Args[0], flag.ExitOnError)
+	flag.Usage = customUsage
 	apiEndpointPtr := flag.String("api-endpoint", "", "API endpoint URL")
 	fixTokenPtr := flag.String("token", "", "Auth token")
 	workspacePtr := flag.String("workspace", "", "Workspace ID")
@@ -20,7 +29,12 @@ func main() {
 	passwordPtr := flag.String("password", "", "Password")
 	formatPtr := flag.String("format", "json", "Output format: json or yaml")
 	withEdgesPtr := flag.Bool("with-edges", false, "Include edges in search results")
+	help := flag.Bool("help", false, "Display help information")
 	flag.Parse()
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
 
 	apiEndpoint := utils.GetEnvOrDefault("FIX_API_ENDPOINT", *apiEndpointPtr)
 	username := utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr)
