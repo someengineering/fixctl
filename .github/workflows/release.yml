@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - "*.*.*"
+    branches:
+      - main
 jobs:
   build:
     name: Build on ${{ matrix.os }}
@@ -20,17 +22,32 @@ jobs:
         uses: actions/checkout@v4
       - name: Build binary (non-macOS)
         if: matrix.os != 'macos-latest'
-        run: go build -o ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-${{ github.ref_name }} .
+        run: |
+          go build -o ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-${{ github.ref_name }} .
         shell: bash
       - name: Build binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          GOARCH=amd64 go build -o ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}
-          GOARCH=arm64 go build -o ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
-          lipo -create -output ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-universal-${{ github.ref_name }} ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }} ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
+          mkdir -p ${{ github.workspace }}/tmp/
+          GOARCH=amd64 go build -o ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }}
+          GOARCH=arm64 go build -o ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
+          lipo -create -output ${{ github.workspace }}/release/fixctl-${{ matrix.os }}-universal-${{ github.ref_name }} ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-amd64-${{ github.ref_name }} ${{ github.workspace }}/tmp/fixctl-${{ matrix.os }}-arm64-${{ github.ref_name }}
         shell: bash
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fixctl-${{ matrix.os }}-${{ github.ref_name }}
           path: ${{ github.workspace }}/release/
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ github.workspace }}/release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
