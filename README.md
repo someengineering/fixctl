@@ -2,7 +2,7 @@
 Fix CLI tool
 
 ## Usage
-```sh
+```
 Usage of fixctl:
   --api-endpoint: API endpoint URL (default "")
   --format: Output format: json or yaml (default "json")
