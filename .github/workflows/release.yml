@@ -28,6 +28,9 @@ jobs:
           if [ $OS_NAME = "windows" ]; then
             SUFFIX=".exe"
           fi
+          if [ $OS_NAME = "ubuntu" ]; then
+            OS_NAME="linux"
+          fi
           echo "SUFFIX=$SUFFIX" >> $GITHUB_ENV
           echo "OS_NAME=$OS_NAME" >> $GITHUB_ENV
       - name: Build Binary (amd64)
