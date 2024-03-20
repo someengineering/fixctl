@@ -1,24 +1,10 @@
 name: Build and Release Binaries
 on:
-  workflow_run:
-    workflows:
-      - "Run Go Tests"
-    types:
-      - completed
-    branches:
-      - main
+  push:
+    tags:
+      - "*.*.*"
 jobs:
-  check_if_tag:
-    runs-on: ubuntu-latest
-    outputs:
-      is_tag: ${{ steps.tag_check.outputs.is_tag }}
-    steps:
-      - name: Check if triggered by a tag
-        id: tag_check
-        run: echo "is_tag=${{ github.event.workflow_run.head_branch == 'refs/tags/*.*.*' }}" >> $GITHUB_OUTPUT
   build:
-    needs: check_if_tag
-    if: needs.check_if_tag.outputs.is_tag == 'true'
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
