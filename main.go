@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/someengineering/fixctl/auth"
 	"github.com/someengineering/fixctl/search"
@@ -28,6 +29,10 @@ func main() {
 	if apiEndpoint == "" {
 		apiEndpoint = "https://app.fix.security"
 	}
+	if workspaceID == "" {
+		fmt.Println("Workspace ID is required")
+		os.Exit(1)
+	}
 
 	if fixToken == "" && username != "" && password != "" {
 		var err error
@@ -38,12 +43,11 @@ func main() {
 		}
 	}
 
-	fmt.Println("using token:", fixToken)
 	response, err := search.SearchTable(apiEndpoint, fixToken, workspaceID, searchStr)
 	if err != nil {
 		fmt.Println("Search error:", err)
 		return
 	}
 
-	fmt.Println("Search Response:", response)
+	fmt.Println(response)
 }

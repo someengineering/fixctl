@@ -46,7 +46,8 @@ func SearchTable(apiEndpoint, fixToken, workspaceID, searchStr string) (string, 
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+fixToken)
+	req.Header.Set("Accept", "application/json")
+	req.AddCookie(&http.Cookie{Name: "session_token", Value: fixToken})
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -59,6 +60,8 @@ func SearchTable(apiEndpoint, fixToken, workspaceID, searchStr string) (string, 
 	if err != nil {
 		return "", fmt.Errorf("error reading response body: %w", err)
 	}
-
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("search request failed with status code: %d, response: %s", resp.StatusCode, responseBody)
+	}
 	return string(responseBody), nil
 }
