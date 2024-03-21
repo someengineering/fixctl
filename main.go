@@ -21,12 +21,12 @@ func customUsage() {
 func main() {
 	flag.CommandLine.Init(os.Args[0], flag.ExitOnError)
 	flag.Usage = customUsage
-	apiEndpointPtr := flag.String("endpoint", "https://app.fix.security", "API endpoint URL")
-	fixTokenPtr := flag.String("token", "", "Auth token")
-	workspacePtr := flag.String("workspace", "", "Workspace ID")
+	apiEndpointPtr := flag.String("endpoint", "https://app.fix.security", "API endpoint URL (env FIX_ENDPOINT)")
+	fixTokenPtr := flag.String("token", "", "Auth token (env FIX_TOKEN)")
+	workspacePtr := flag.String("workspace", "", "Workspace ID (env FIX_WORKSPACE)")
 	searchStrPtr := flag.String("search", "", "Search string")
-	usernamePtr := flag.String("username", "", "Username")
-	passwordPtr := flag.String("password", "", "Password")
+	usernamePtr := flag.String("username", "", "Username (env FIX_USERNAME)")
+	passwordPtr := flag.String("password", "", "Password (env FIX_PASSWORD)")
 	formatPtr := flag.String("format", "json", "Output format: json or yaml")
 	withEdgesPtr := flag.Bool("with-edges", false, "Include edges in search results")
 	help := flag.Bool("help", false, "Display help information")
