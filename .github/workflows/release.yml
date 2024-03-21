@@ -115,5 +115,5 @@ jobs:
       run: |
         git config --global user.email "ci@some.engineering"
         git config --global user.name "Some CI"
-        git commit -am "Update Fixctl formula to version ${FIXCTL_VERSION}"
+        git commit -am "Update Fixctl formula to version ${{ github.ref_name }}"
         git push
