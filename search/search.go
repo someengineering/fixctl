@@ -55,6 +55,10 @@ func SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges
 		}
 
 		scanner := bufio.NewScanner(resp.Body)
+		const maxTokenSize = 1024 * 1024
+		buf := make([]byte, maxTokenSize)
+		scanner.Buffer(buf, maxTokenSize)
+
 		for scanner.Scan() {
 			var result interface{}
 			if err := json.Unmarshal(scanner.Bytes(), &result); err != nil {
