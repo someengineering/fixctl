@@ -36,25 +36,37 @@ func main() {
 		os.Exit(0)
 	}
 
-	apiEndpoint := utils.GetEnvOrDefault("FIX_ENDPOINT", *apiEndpointPtr)
-	username := utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr)
-	password := utils.GetEnvOrDefault("FIX_PASSWORD", *passwordPtr)
-	fixToken := utils.GetEnvOrDefault("FIX_TOKEN", *fixTokenPtr)
-	workspaceID := utils.GetEnvOrDefault("FIX_WORKSPACE", *workspacePtr)
-	searchStr := *searchStrPtr
 	withEdges := *withEdgesPtr
 	outputFormat := *formatPtr
 
-	if workspaceID == "" {
-		fmt.Println("Workspace ID is required")
+	username, password, err := utils.SanitizeCredentials(utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr), utils.GetEnvOrDefault("FIX_PASSWORD", *passwordPtr))
+	if err != nil {
+		fmt.Println("Invalid username or password:", err)
 		os.Exit(1)
 	}
+	searchStr, err := utils.SanitizeSearchString(*searchStrPtr)
+	if err != nil {
+		fmt.Println("Invalid search string:", err)
+		os.Exit(1)
+	}
+	apiEndpoint, err := utils.SanitizeAPIEndpoint(utils.GetEnvOrDefault("FIX_ENDPOINT", *apiEndpointPtr))
+	if err != nil {
+		fmt.Println("Invalid API endpoint:", err)
+		os.Exit(1)
+	}
+	fixToken, err := utils.SanitizeToken(utils.GetEnvOrDefault("FIX_TOKEN", *fixTokenPtr))
+	if err != nil {
+		fmt.Println("Invalid token:", err)
+		os.Exit(1)
+	}
+	workspaceID, err := utils.SanitizeWorkspaceId(utils.GetEnvOrDefault("FIX_WORKSPACE", *workspacePtr))
+	if err != nil {
+		fmt.Println("Invalid workspace ID:", err)
+		os.Exit(1)
+	}
+
 	if outputFormat != "json" && outputFormat != "yaml" {
 		fmt.Println("Invalid output format")
-		os.Exit(1)
-	}
-	if searchStr == "" {
-		fmt.Println("Search string is required")
 		os.Exit(1)
 	}
 
