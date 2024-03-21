@@ -63,8 +63,6 @@ jobs:
         shell: bash
         run: |
           echo "FIXCTL_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
-      - name: Check out code
-        uses: actions/checkout@v4
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -81,3 +79,41 @@ jobs:
             ${{ github.workspace }}/release/*/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  update-homebrew-formula:
+    name: Update Homebrew Formula
+    needs: create_release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the homebrew-tap repository
+      uses: actions/checkout@v4
+      with:
+        repository: someengineering/homebrew-tap
+        token: ${{ secrets.SOME_CI_PAT }}
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ${{ github.workspace }}/release
+    - name: Update formula for Fixctl
+      run: |
+        FIXCTL_VERSION=${{ github.ref_name }}
+        ARTIFACTS_PATH="${{ github.workspace }}/release"
+
+        FIXCTL_MACOS_UNIVERSAL_BINARY_SHA256=$(sha256sum $(find "${ARTIFACTS_PATH}" -name "fixctl-macos-universal-${FIXCTL_VERSION}") | awk '{print $1}')
+        FIXCTL_LINUX_AMD64_BINARY_SHA256=$(sha256sum $(find "${ARTIFACTS_PATH}" -name "fixctl-linux-amd64-${FIXCTL_VERSION}") | awk '{print $1}')
+        FIXCTL_LINUX_ARM64_BINARY_SHA256=$(sha256sum $(find "${ARTIFACTS_PATH}" -name "fixctl-linux-arm64-${FIXCTL_VERSION}") | awk '{print $1}')
+
+        sed \
+            -e "s|@FIXCTL_VERSION@|${FIXCTL_VERSION}|g" \
+            -e "s|@FIXCTL_MACOS_UNIVERSAL_BINARY_SHA256@|${FIXCTL_MACOS_UNIVERSAL_BINARY_SHA256}|g" \
+            -e "s|@FIXCTL_LINUX_AMD64_BINARY_SHA256@|${FIXCTL_LINUX_AMD64_BINARY_SHA256}|g" \
+            -e "s|@FIXCTL_LINUX_ARM64_BINARY_SHA256@|${FIXCTL_LINUX_ARM64_BINARY_SHA256}|g" \
+            fixctl.rb.in > fixctl.rb
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.SOME_CI_PAT }}
+      run: |
+        git config --global user.email "ci@some.engineering"
+        git config --global user.name "Some CI"
+        git commit -am "Update Fixctl formula to version ${{ github.event.release.tag_name }}"
+        git push
