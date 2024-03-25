@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -137,6 +138,124 @@ func TestSanitizeWorkspaceId(t *testing.T) {
 		_, err := SanitizeWorkspaceId(tt.id)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("%q. SanitizeWorkspaceId() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+		}
+	}
+}
+
+func TestSanitizeOutputFormat(t *testing.T) {
+	tests := []struct {
+		name      string
+		format    string
+		want      string
+		wantError bool
+	}{
+		{
+			name:      "Valid format json",
+			format:    "json",
+			want:      "json",
+			wantError: false,
+		},
+		{
+			name:      "Valid format yaml",
+			format:    "yaml",
+			want:      "yaml",
+			wantError: false,
+		},
+		{
+			name:      "Valid format csv",
+			format:    "csv",
+			want:      "csv",
+			wantError: false,
+		},
+		{
+			name:      "Unsupported format",
+			format:    "xml",
+			want:      "",
+			wantError: true,
+		},
+		{
+			name:      "Empty format",
+			format:    "",
+			want:      "",
+			wantError: true,
+		},
+		{
+			name:      "Whitespace format",
+			format:    " ",
+			want:      "",
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		got, err := SanitizeOutputFormat(tt.format)
+		if (err != nil) != tt.wantError {
+			t.Errorf("%s: SanitizeOutputFormat(%s) expected error: %v, got: %v", tt.name, tt.format, tt.wantError, err)
+		}
+		if got != tt.want {
+			t.Errorf("%s: SanitizeOutputFormat(%s) = %v, want %v", tt.name, tt.format, got, tt.want)
+		}
+	}
+}
+
+func TestSanitizeCSVHeaders(t *testing.T) {
+	tests := []struct {
+		name      string
+		headers   string
+		want      []string
+		wantError bool
+	}{
+		{
+			name:      "Non-empty headers without leading slash",
+			headers:   "id,name,kind",
+			want:      []string{"/reported.id", "/reported.name", "/reported.kind"},
+			wantError: false,
+		},
+		{
+			name:      "Headers with leading slash",
+			headers:   "/metadata.expires,/metadata.cleaned",
+			want:      []string{"/metadata.expires", "/metadata.cleaned"},
+			wantError: false,
+		},
+		{
+			name:      "Mixed headers",
+			headers:   "name,/metadata.expires,kind",
+			want:      []string{"/reported.name", "/metadata.expires", "/reported.kind"},
+			wantError: false,
+		},
+		{
+			name:      "Empty headers string",
+			headers:   "",
+			want:      nil,
+			wantError: true,
+		},
+		{
+			name:      "Only whitespace",
+			headers:   "  ",
+			want:      nil,
+			wantError: true,
+		},
+		{
+			name:      "Header with only commas",
+			headers:   ",,,",
+			want:      nil,
+			wantError: true,
+		},
+		{
+			name:      "Empty header among valid headers",
+			headers:   "id,,name",
+			want:      nil,
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		got, err := SanitizeCSVHeaders(tt.headers)
+		if (err != nil) != tt.wantError {
+			t.Errorf("%s: SanitizeCSVHeaders() error = %v, wantError %v", tt.name, err, tt.wantError)
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%s: SanitizeCSVHeaders() = %v, want %v", tt.name, got, tt.want)
 		}
 	}
 }

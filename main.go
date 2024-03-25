@@ -27,7 +27,8 @@ func main() {
 	searchStrPtr := flag.String("search", "", "Search string")
 	usernamePtr := flag.String("username", "", "Username (env FIX_USERNAME)")
 	passwordPtr := flag.String("password", "", "Password (env FIX_PASSWORD)")
-	formatPtr := flag.String("format", "json", "Output format: json or yaml")
+	formatPtr := flag.String("format", "json", "Output format: json, yaml or csv")
+	csvHeadersPtr := flag.String("csv-headers", "id,name,kind,/ancestors.cloud.reported.id,/ancestors.account.reported.id,/ancestors.region.reported.id", "CSV headers (comma-separated, relative to /reported by default)")
 	withEdgesPtr := flag.Bool("with-edges", false, "Include edges in search results")
 	help := flag.Bool("help", false, "Display help information")
 	flag.Parse()
@@ -37,36 +38,44 @@ func main() {
 	}
 
 	withEdges := *withEdgesPtr
-	outputFormat := *formatPtr
 
+	invalidArgs := false
 	username, password, err := utils.SanitizeCredentials(utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr), utils.GetEnvOrDefault("FIX_PASSWORD", *passwordPtr))
 	if err != nil {
 		fmt.Println("Invalid username or password:", err)
-		os.Exit(1)
+		invalidArgs = true
 	}
 	searchStr, err := utils.SanitizeSearchString(*searchStrPtr)
 	if err != nil {
 		fmt.Println("Invalid search string:", err)
-		os.Exit(1)
+		invalidArgs = true
 	}
 	apiEndpoint, err := utils.SanitizeAPIEndpoint(utils.GetEnvOrDefault("FIX_ENDPOINT", *apiEndpointPtr))
 	if err != nil {
 		fmt.Println("Invalid API endpoint:", err)
-		os.Exit(1)
+		invalidArgs = true
 	}
 	fixToken, err := utils.SanitizeToken(utils.GetEnvOrDefault("FIX_TOKEN", *fixTokenPtr))
 	if err != nil {
 		fmt.Println("Invalid token:", err)
-		os.Exit(1)
+		invalidArgs = true
 	}
 	workspaceID, err := utils.SanitizeWorkspaceId(utils.GetEnvOrDefault("FIX_WORKSPACE", *workspacePtr))
 	if err != nil {
 		fmt.Println("Invalid workspace ID:", err)
-		os.Exit(1)
+		invalidArgs = true
 	}
-
-	if outputFormat != "json" && outputFormat != "yaml" {
-		fmt.Println("Invalid output format")
+	csvHeaders, err := utils.SanitizeCSVHeaders(*csvHeadersPtr)
+	if err != nil {
+		fmt.Println("Invalid CSV headers:", err)
+		invalidArgs = true
+	}
+	outputFormat, err := utils.SanitizeOutputFormat(*formatPtr)
+	if err != nil {
+		fmt.Println("Invalid output format:", err)
+		invalidArgs = true
+	}
+	if invalidArgs {
 		os.Exit(1)
 	}
 
@@ -96,6 +105,8 @@ func main() {
 				firstResult = false
 			}
 			output, err = format.ToYAML(result)
+		case "csv":
+			output, err = format.ToCSV(result, csvHeaders)
 		default:
 			output, err = format.ToJSON(result)
 		}
