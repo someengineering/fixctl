@@ -72,3 +72,37 @@ func SanitizeWorkspaceId(workspaceId string) (string, error) {
 
 	return workspaceId, nil
 }
+
+func SanitizeCSVHeaders(headers string) ([]string, error) {
+	if headers == "" {
+		return nil, fmt.Errorf("headers cannot be empty")
+	}
+
+	rawHeaders := strings.Split(headers, ",")
+	if len(rawHeaders) == 0 {
+		return nil, fmt.Errorf("at least one header must be specified")
+	}
+
+	csvHeaders := make([]string, len(rawHeaders))
+	for i, header := range rawHeaders {
+		trimmedHeader := strings.TrimSpace(header)
+		if trimmedHeader == "" {
+			return nil, fmt.Errorf("empty CSV header found")
+		}
+
+		if !strings.HasPrefix(trimmedHeader, "/") {
+			trimmedHeader = "/reported." + trimmedHeader
+		}
+		csvHeaders[i] = trimmedHeader
+	}
+	return csvHeaders, nil
+}
+
+func SanitizeOutputFormat(format string) (string, error) {
+	switch format {
+	case "json", "yaml", "csv":
+		return format, nil
+	default:
+		return "", fmt.Errorf("unsupported output format")
+	}
+}
