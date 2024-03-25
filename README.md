@@ -21,8 +21,9 @@ brew install someengineering/tap/fixctl
 ## Usage
 ```
 Usage of fixctl:
+  --csv-headers: CSV headers (comma-separated, relative to /reported by default) (default "id,name,kind,/ancestors.cloud.reported.id,/ancestors.account.reported.id,/ancestors.region.reported.id")
   --endpoint: API endpoint URL (env FIX_ENDPOINT) (default "https://app.fix.security")
-  --format: Output format: json or yaml (default "json")
+  --format: Output format: json, yaml or csv (default "json")
   --help: Display help information (default "false")
   --password: Password (env FIX_PASSWORD) (default "")
   --search: Search string (default "")
