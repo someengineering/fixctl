@@ -11,8 +11,10 @@ import (
 	"github.com/someengineering/fixctl/utils"
 )
 
+var version = "development"
+
 func customUsage() {
-	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n", os.Args[0])
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s (%s):\n", os.Args[0], version)
 	flag.VisitAll(func(f *flag.Flag) {
 		fmt.Fprintf(flag.CommandLine.Output(), "  --%s: %s (default %q)\n", f.Name, f.Usage, f.DefValue)
 	})
