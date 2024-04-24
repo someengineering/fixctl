@@ -106,3 +106,7 @@ func SanitizeOutputFormat(format string) (string, error) {
 		return "", fmt.Errorf("unsupported output format")
 	}
 }
+
+func Errorln(a ...interface{}) {
+	fmt.Fprintln(os.Stderr, a...)
+}
