@@ -42,37 +42,37 @@ func main() {
 	invalidArgs := false
 	username, password, err := utils.SanitizeCredentials(utils.GetEnvOrDefault("FIX_USERNAME", *usernamePtr), utils.GetEnvOrDefault("FIX_PASSWORD", *passwordPtr))
 	if err != nil {
-		fmt.Println("Invalid username or password:", err)
+		utils.Errorln("Invalid username or password:", err)
 		invalidArgs = true
 	}
 	searchStr, err := utils.SanitizeSearchString(*searchStrPtr)
 	if err != nil {
-		fmt.Println("Invalid search string:", err)
+		utils.Errorln("Invalid search string:", err)
 		invalidArgs = true
 	}
 	apiEndpoint, err := utils.SanitizeAPIEndpoint(utils.GetEnvOrDefault("FIX_ENDPOINT", *apiEndpointPtr))
 	if err != nil {
-		fmt.Println("Invalid API endpoint:", err)
+		utils.Errorln("Invalid API endpoint:", err)
 		invalidArgs = true
 	}
 	fixToken, err := utils.SanitizeToken(utils.GetEnvOrDefault("FIX_TOKEN", *fixTokenPtr))
 	if err != nil {
-		fmt.Println("Invalid token:", err)
+		utils.Errorln("Invalid token:", err)
 		invalidArgs = true
 	}
 	workspaceID, err := utils.SanitizeWorkspaceId(utils.GetEnvOrDefault("FIX_WORKSPACE", *workspacePtr))
 	if err != nil {
-		fmt.Println("Invalid workspace ID:", err)
+		utils.Errorln("Invalid workspace ID:", err)
 		invalidArgs = true
 	}
 	csvHeaders, err := utils.SanitizeCSVHeaders(*csvHeadersPtr)
 	if err != nil {
-		fmt.Println("Invalid CSV headers:", err)
+		utils.Errorln("Invalid CSV headers:", err)
 		invalidArgs = true
 	}
 	outputFormat, err := utils.SanitizeOutputFormat(*formatPtr)
 	if err != nil {
-		fmt.Println("Invalid output format:", err)
+		utils.Errorln("Invalid output format:", err)
 		invalidArgs = true
 	}
 	if invalidArgs {
@@ -83,12 +83,12 @@ func main() {
 		var err error
 		fixToken, err = auth.LoginAndGetJWT(apiEndpoint, username, password)
 		if err != nil {
-			fmt.Println("Login error:", err)
+			utils.Errorln("Login error:", err)
 			return
 		}
 	}
 	if fixToken == "" {
-		fmt.Println("Either token or username and password are required")
+		utils.Errorln("Either token or username and password are required")
 		os.Exit(1)
 	}
 
@@ -118,6 +118,6 @@ func main() {
 	}
 
 	if err, ok := <-errs; ok {
-		fmt.Println("Search error:", err)
+		utils.Errorln("Search error:", err)
 	}
 }
