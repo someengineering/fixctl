@@ -60,8 +60,11 @@ func SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges
 		scanner.Buffer(buf, maxTokenSize)
 
 		for scanner.Scan() {
+			decoder := json.NewDecoder(bytes.NewReader(scanner.Bytes()))
+			decoder.UseNumber()
+
 			var result interface{}
-			if err := json.Unmarshal(scanner.Bytes(), &result); err != nil {
+			if err := decoder.Decode(&result); err != nil {
 				errs <- fmt.Errorf("error unmarshaling JSON: %w", err)
 				return
 			}
