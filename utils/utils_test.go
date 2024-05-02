@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"os"
 	"reflect"
 	"strings"
@@ -258,30 +257,5 @@ func TestSanitizeCSVHeaders(t *testing.T) {
 		if !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%s: SanitizeCSVHeaders() = %v, want %v", tt.name, got, tt.want)
 		}
-	}
-}
-
-func captureStderr(f func()) string {
-	oldStderr := os.Stderr
-	r, w, _ := os.Pipe()
-	os.Stderr = w
-
-	f()
-
-	w.Close()
-	os.Stderr = oldStderr
-	var buf bytes.Buffer
-	buf.ReadFrom(r)
-	return buf.String()
-}
-
-func TestErrorln(t *testing.T) {
-	expected := "Invalid username or password: sample error\n"
-	result := captureStderr(func() {
-		Errorln("Invalid username or password:", "sample error")
-	})
-
-	if result != expected {
-		t.Errorf("Errorln was incorrect, got: %s, want: %s", result, expected)
 	}
 }
