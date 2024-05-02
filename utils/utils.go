@@ -6,6 +6,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 func GetEnvOrDefault(envKey, defaultValue string) string {
@@ -16,6 +18,7 @@ func GetEnvOrDefault(envKey, defaultValue string) string {
 }
 
 func SanitizeAPIEndpoint(endpoint string) (string, error) {
+	logrus.Debugln("Sanitizing API endpoint:", endpoint)
 	if endpoint == "" {
 		return "", fmt.Errorf("API endpoint is empty")
 	}
@@ -40,6 +43,7 @@ func SanitizeAPIEndpoint(endpoint string) (string, error) {
 }
 
 func SanitizeCredentials(username, password string) (string, string, error) {
+	logrus.Debugln("Sanitizing credentials, username:", username)
 	if strings.Contains(username, " ") || strings.Contains(password, " ") || len(username) > 128 || len(password) > 128 {
 		return "", "", fmt.Errorf("username or password contains spaces or is too long")
 	}
@@ -47,6 +51,7 @@ func SanitizeCredentials(username, password string) (string, string, error) {
 }
 
 func SanitizeSearchString(search string) (string, error) {
+	logrus.Debugln("Sanitizing search string:", search)
 	if search == "" {
 		return "", fmt.Errorf("search string is empty")
 	}
@@ -57,6 +62,7 @@ func SanitizeSearchString(search string) (string, error) {
 }
 
 func SanitizeToken(token string) (string, error) {
+	logrus.Debugln("Sanitizing token:", token)
 	if len(token) > 4096 {
 		return "", fmt.Errorf("token is too long")
 	}
@@ -64,16 +70,18 @@ func SanitizeToken(token string) (string, error) {
 }
 
 func SanitizeWorkspaceId(workspaceId string) (string, error) {
+	logrus.Debugln("Sanitizing workspace ID:", workspaceId)
 	guidRegex := regexp.MustCompile(`^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$`)
 
 	if !guidRegex.MatchString(workspaceId) {
-		return "", fmt.Errorf("workspace ID is not a valid GUID")
+		return "", fmt.Errorf("workspace ID %s is not a valid GUID", workspaceId)
 	}
 
 	return workspaceId, nil
 }
 
 func SanitizeCSVHeaders(headers string) ([]string, error) {
+	logrus.Debugln("Sanitizing CSV headers:", headers)
 	if headers == "" {
 		return nil, fmt.Errorf("headers cannot be empty")
 	}
@@ -99,6 +107,7 @@ func SanitizeCSVHeaders(headers string) ([]string, error) {
 }
 
 func SanitizeOutputFormat(format string) (string, error) {
+	logrus.Debugln("Sanitizing output format:", format)
 	switch format {
 	case "json", "yaml", "csv":
 		return format, nil

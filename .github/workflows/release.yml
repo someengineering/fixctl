@@ -35,11 +35,11 @@ jobs:
           echo "OS_NAME=$OS_NAME" >> $GITHUB_ENV
       - name: Build Binary (amd64)
         run: |
-          GOARCH=amd64 go build -ldflags "-s -w -X main.version=v${{ github.ref_name }}" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX"
+          GOARCH=amd64 go build -ldflags "-s -w -X main.Version=v${{ github.ref_name }}" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-amd64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Build Binary (arm64)
         run: |
-          GOARCH=arm64 go build -ldflags "-s -w -X main.version=v${{ github.ref_name }}" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
+          GOARCH=arm64 go build -ldflags "-s -w -X main.Version=v${{ github.ref_name }}" -o "${{ github.workspace }}/release/fixctl-$OS_NAME-arm64-${{ github.ref_name }}$SUFFIX"
         shell: bash
       - name: Generate Universal Binary (macOS)
         if: matrix.os == 'macos-latest'
