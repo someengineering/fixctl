@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +16,7 @@ func main() {
 
 	cmd.SetVersion(version)
 	if err := cmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		logrus.Errorln("Error:", err)
 		os.Exit(1)
 	}
 }
