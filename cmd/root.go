@@ -18,7 +18,7 @@ var (
 		Use:   "fixctl",
 		Short: "fixctl is the Fix Security CLI tool",
 		Long:  `fixctl allows you to search the Fix Security Graph and export cloud inventory data for further processing.`,
-		Run:   executeMainLogic,
+		Run:   executeSearch,
 	}
 
 	apiEndpoint string
@@ -60,7 +60,7 @@ func initConfig() {
 	}
 }
 
-func executeMainLogic(cmd *cobra.Command, args []string) {
+func executeSearch(cmd *cobra.Command, args []string) {
 	invalidArgs := false
 	username, password, err := utils.SanitizeCredentials(viper.GetString("username"), viper.GetString("password"))
 	if err != nil {
