@@ -23,6 +23,7 @@ var (
 
 	apiEndpoint string
 	fixToken    string
+	fixJWT      string
 	workspace   string
 	username    string
 	password    string
@@ -103,18 +104,26 @@ func executeSearch(cmd *cobra.Command, args []string) {
 
 	if fixToken == "" && username != "" && password != "" {
 		var err error
-		fixToken, err = auth.LoginAndGetJWT(apiEndpoint, username, password)
+		fixJWT, err = auth.LoginAndGetJWT(apiEndpoint, username, password)
 		if err != nil {
 			logrus.Errorln("Login error:", err)
 			return
 		}
 	}
-	if fixToken == "" {
+	if fixToken != "" {
+		var err error
+		fixJWT, err = auth.GetJWTFromToken(apiEndpoint, fixToken)
+		if err != nil {
+			logrus.Errorln("Login error:", err)
+			return
+		}
+	}
+	if fixJWT == "" {
 		logrus.Errorln("Either token or username and password are required")
 		os.Exit(1)
 	}
 
-	results, errs := search.SearchGraph(apiEndpoint, fixToken, workspace, searchStr, withEdges)
+	results, errs := search.SearchGraph(apiEndpoint, fixJWT, workspace, searchStr, withEdges)
 	firstResult := true
 	for result := range results {
 		var output string

@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -39,4 +42,39 @@ func LoginAndGetJWT(apiEndpoint, username, password string) (string, error) {
 	}
 
 	return "", fmt.Errorf("JWT not found in response cookies")
+}
+
+func GetJWTFromToken(apiEndpoint, fixToken string) (string, error) {
+	tokenURL := fmt.Sprintf("%s/api/token/access", apiEndpoint)
+
+	body := map[string]string{"token": fixToken}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("received error response: %s", resp.Status)
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	jwt := string(bodyBytes)
+	return jwt, nil
 }
