@@ -67,7 +67,7 @@ func GetJWTFromToken(apiEndpoint, fixToken string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("received non-200 response: %d", resp.StatusCode)
+		return "", fmt.Errorf("received error response: %s", resp.Status)
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
