@@ -39,7 +39,12 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/ndjson")
-		req.AddCookie(&http.Cookie{Name: "session_token", Value: fixJWT})
+		req.AddCookie(&http.Cookie{
+			Name:     "session_token",
+			Value:    fixJWT,
+			HttpOnly: true,
+			Secure:   true,
+		})
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
