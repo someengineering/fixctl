@@ -14,7 +14,7 @@ type SearchRequest struct {
 	WithEdges bool   `json:"with_edges"`
 }
 
-func SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
+func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
 	results := make(chan interface{})
 	errs := make(chan error, 1)
 
@@ -39,7 +39,7 @@ func SearchGraph(apiEndpoint, fixToken, workspaceID, searchStr string, withEdges
 
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/ndjson")
-		req.AddCookie(&http.Cookie{Name: "session_token", Value: fixToken})
+		req.AddCookie(&http.Cookie{Name: "session_token", Value: fixJWT})
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
