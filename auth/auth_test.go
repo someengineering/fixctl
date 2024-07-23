@@ -48,8 +48,14 @@ func TestGetJWTFromToken(t *testing.T) {
 			t.Errorf("Expected token '%s', got '%s'", expectedToken, body["token"])
 		}
 
+		response := map[string]string{"access_token": "mock_jwt_token"}
+		responseBody, err := json.Marshal(response)
+		if err != nil {
+			t.Fatalf("Error marshaling response body: %v", err)
+		}
+
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("mock_jwt_token"))
+		w.Write(responseBody)
 	}))
 	defer mockServer.Close()
 

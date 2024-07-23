@@ -47,6 +47,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&csvHeaders, "csv-headers", "id,name,kind,/ancestors.cloud.reported.id,/ancestors.account.reported.id,/ancestors.region.reported.id", "CSV headers")
 	rootCmd.PersistentFlags().BoolVar(&withEdges, "with-edges", false, "Include edges in search results")
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose output")
+	rootCmd.PersistentFlags().MarkHidden("username")
+	rootCmd.PersistentFlags().MarkHidden("password")
 
 	viper.BindPFlags(rootCmd.PersistentFlags())
 	viper.SetEnvPrefix("FIX")

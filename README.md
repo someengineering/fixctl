@@ -25,16 +25,16 @@ Usage of fixctl:
   --endpoint: API endpoint URL (env FIX_ENDPOINT) (default "https://app.fix.security")
   --format: Output format: json, yaml or csv (default "json")
   --help: Display help information (default "false")
-  --password: Password (env FIX_PASSWORD) (default "")
   --search: Search string (default "")
   --token: Auth token (env FIX_TOKEN) (default "")
-  --username: Username (env FIX_USERNAME) (default "")
   --with-edges: Include edges in search results (default "false")
   --workspace: Workspace ID (env FIX_WORKSPACE) (default "")
 ```
 
-If no token is provided, the username and password will be used to authenticate and obtain a token. Does not support MFA.
 If an environment variable is set, it will be used and the command line flag ignored.
+
+Go to your [user settings](https://app.fix.security/user-settings) and create an API token. Set the `FIX_TOKEN` environment variable to the token value.
+Then go to your [workspace settings](https://app.fix.security/workspace-settings) and export `FIX_WORKSPACE` to the workspace ID you want to query.
 
 ### Example
 Search for available AWS EBS volumes that have not been accessed in the last 7 days and output in CSV format.
