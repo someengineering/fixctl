@@ -75,6 +75,15 @@ func GetJWTFromToken(apiEndpoint, fixToken string) (string, error) {
 		return "", err
 	}
 
-	jwt := string(bodyBytes)
+	var result map[string]string
+	if err := json.Unmarshal(bodyBytes, &result); err != nil {
+		return "", err
+	}
+
+	jwt, ok := result["access_token"]
+	if !ok {
+		return "", fmt.Errorf("access_token not found in response")
+	}
+
 	return jwt, nil
 }
