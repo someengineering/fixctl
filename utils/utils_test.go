@@ -259,3 +259,25 @@ func TestSanitizeCSVHeaders(t *testing.T) {
 		}
 	}
 }
+
+func TestEscapeSingleQuotes(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"", ""},
+		{"no single quotes", "no single quotes"},
+		{"single ' quote", "single '\\'' quote"},
+		{"multiple ' single ' quotes", "multiple '\\'' single '\\'' quotes"},
+		{"escaped \\ backslash ' and single quote", "escaped \\ backslash '\\'' and single quote"},
+		{"'leading", "'\\''leading"},
+		{"trailing'", "trailing'\\''"},
+	}
+
+	for _, test := range tests {
+		result := EscapeSingleQuotes(test.input)
+		if result != test.expected {
+			t.Errorf("EscapeSingleQuotes(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}

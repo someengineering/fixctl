@@ -115,3 +115,7 @@ func SanitizeOutputFormat(format string) (string, error) {
 		return "", fmt.Errorf("unsupported output format")
 	}
 }
+
+func EscapeSingleQuotes(s string) string {
+	return strings.ReplaceAll(s, "'", "'\\''")
+}
