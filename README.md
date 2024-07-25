@@ -7,9 +7,9 @@ Fix CLI tool
 Download the latest release from the [releases page](https://github.com/someengineering/fixctl/releases).
 On macOS and Linux make sure to make the binary executable.
 
-Example:
+Linux Example:
 ```bash
-curl -Lo fixctl https://github.com/someengineering/fixctl/releases/download/0.0.6/fixctl-linux-amd64-0.0.6
+curl -Lo fixctl https://github.com/someengineering/fixctl/releases/download/0.0.7/fixctl-linux-amd64-0.0.7
 chmod +x fixctl
 ```
 
