@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 type SearchRequest struct {
@@ -47,6 +49,9 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 			Secure:   true,
 		})
 
+		curlCommand := fmt.Sprintf("curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/ndjson' -H 'Cookie: session_token=%s' -d '%s' %s", fixJWT, string(requestBody), url)
+		logrus.Debugln("Equivalent curl command:", curlCommand)
+
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -76,7 +81,7 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 
 			var result interface{}
 			if err := decoder.Decode(&result); err != nil {
-				errs <- fmt.Errorf("error unmarshaling JSON: %w", err)
+				errs <- fmt.Errorf("error unmarshalling JSON: %w", err)
 				return
 			}
 			results <- result
