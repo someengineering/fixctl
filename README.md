@@ -9,7 +9,7 @@ On macOS and Linux make sure to make the binary executable.
 
 Linux Example:
 ```bash
-curl -Lo fixctl https://github.com/someengineering/fixctl/releases/download/0.0.8/fixctl-linux-amd64-0.0.8
+curl -Lo fixctl https://github.com/someengineering/fixctl/releases/download/0.0.9/fixctl-linux-amd64-0.0.9
 chmod +x fixctl
 ```
 
