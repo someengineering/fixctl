@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -15,6 +16,10 @@ import (
 type SearchRequest struct {
 	Query     string `json:"query"`
 	WithEdges bool   `json:"with_edges"`
+}
+
+func escapeSingleQuotes(s string) string {
+	return strings.ReplaceAll(s, "'", "'\\''")
 }
 
 func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges bool) (<-chan interface{}, <-chan error) {
@@ -49,7 +54,8 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 			Secure:   true,
 		})
 
-		curlCommand := fmt.Sprintf("curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/ndjson' -H 'Cookie: session_token=%s' -d '%s' %s", fixJWT, string(requestBody), url)
+		escapedRequestBody := escapeSingleQuotes(string(requestBody))
+		curlCommand := fmt.Sprintf("curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/ndjson' -H 'Cookie: session_token=%s' -d '%s' %s", fixJWT, escapedRequestBody, url)
 		logrus.Debugln("Equivalent curl command:", curlCommand)
 
 		client := &http.Client{}
