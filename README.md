@@ -20,15 +20,22 @@ brew install someengineering/tap/fixctl
 
 ## Usage
 ```
-Usage of fixctl:
-  --csv-headers: CSV headers (comma-separated, relative to /reported by default) (default "id,name,kind,/ancestors.cloud.reported.id,/ancestors.account.reported.id,/ancestors.region.reported.id")
-  --endpoint: API endpoint URL (env FIX_ENDPOINT) (default "https://app.fix.security")
-  --format: Output format: json, yaml or csv (default "json")
-  --help: Display help information (default "false")
-  --search: Search string (default "")
-  --token: Auth token (env FIX_TOKEN) (default "")
-  --with-edges: Include edges in search results (default "false")
-  --workspace: Workspace ID (env FIX_WORKSPACE) (default "")
+fixctl allows you to search the Fix Security Graph and export cloud inventory data for further processing.
+
+Usage:
+  fixctl [flags]
+
+Flags:
+      --csv-headers string   CSV headers (default "id,name,kind,/ancestors.cloud.reported.id,/ancestors.account.reported.id,/ancestors.region.reported.id")
+      --endpoint string      API endpoint URL (env FIX_ENDPOINT) (default "https://app.fix.security")
+      --format string        Output format: json, yaml or csv (default "json")
+  -h, --help                 help for fixctl
+      --search string        Search string
+      --token string         Auth token (env FIX_TOKEN)
+      --verbose              enable verbose output
+  -v, --version              version for fixctl
+      --with-edges           Include edges in search results
+      --workspace string     Workspace ID (env FIX_WORKSPACE)
 ```
 
 If an environment variable is set, it will be used and the command line flag ignored.
