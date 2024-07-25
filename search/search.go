@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -55,7 +56,12 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 		defer resp.Body.Close()
 
 		if resp.StatusCode != 200 {
-			errs <- fmt.Errorf("search request failed with status code: %d", resp.StatusCode)
+			bodyBytes, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				errs <- fmt.Errorf("search request failed with status code: %d, and error reading response body: %w", resp.StatusCode, readErr)
+				return
+			}
+			errs <- fmt.Errorf("search request failed with status code: %d, error: %s", resp.StatusCode, string(bodyBytes))
 			return
 		}
 
