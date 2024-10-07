@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/someengineering/fixctl/config"
 )
 
 func LoginAndGetJWT(apiEndpoint, username, password string) (string, error) {
@@ -21,6 +23,7 @@ func LoginAndGetJWT(apiEndpoint, username, password string) (string, error) {
 		return "", fmt.Errorf("creating login request failed: %w", err)
 	}
 
+	req.Header.Set("User-Agent", config.GetUserAgent())
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/json")
 
@@ -57,6 +60,7 @@ func GetJWTFromToken(apiEndpoint, fixToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("User-Agent", config.GetUserAgent())
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}

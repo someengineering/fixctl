@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/someengineering/fixctl/auth"
+	"github.com/someengineering/fixctl/config"
 	"github.com/someengineering/fixctl/format"
 	"github.com/someengineering/fixctl/search"
 	"github.com/someengineering/fixctl/utils"
@@ -36,6 +37,7 @@ var (
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.Version = config.Version
 
 	rootCmd.PersistentFlags().StringVar(&apiEndpoint, "endpoint", "https://app.fix.security", "API endpoint URL (env FIX_ENDPOINT)")
 	rootCmd.PersistentFlags().StringVar(&fixToken, "token", "", "Auth token (env FIX_TOKEN)")
@@ -157,8 +159,4 @@ func executeSearch(cmd *cobra.Command, args []string) {
 
 func Execute() error {
 	return rootCmd.Execute()
-}
-
-func SetVersion(version string) {
-	rootCmd.Version = version
 }
