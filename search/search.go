@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"github.com/someengineering/fixctl/config"
 	"github.com/someengineering/fixctl/utils"
 )
 
@@ -41,6 +42,7 @@ func SearchGraph(apiEndpoint, fixJWT, workspaceID, searchStr string, withEdges b
 			return
 		}
 
+		req.Header.Set("User-Agent", config.GetUserAgent())
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/ndjson")
 		req.AddCookie(&http.Cookie{
